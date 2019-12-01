@@ -6,7 +6,7 @@ module.exports = {
         'light-blue': '#03ADD4',
         'font-blue': '#03AEE6',
         'font-gray': '#465866',
-        'arcops-blue': '#0C6BDC',
+        'arcops-blue': '#0C6BDC'
       }
     }
   },
