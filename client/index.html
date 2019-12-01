@@ -5,53 +5,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script type="text/javascript" src="/ARC-OPS/backend/app.js"></script>
     <link rel="stylesheet" href="./main.css">
     <title>MyBay</title>
 </head>
 
-<body class="flex flex-col bg-white h-full">
-        <header class="bg-custom-blue mx-auto w-full py-16">
-           
-                <img src="./images/logo.png" alt="" class="px-4" style="
-                width: 27%;
-                top: -24px;
-                left: 36%;
-                position: relative;
-                ">      
-                <p class="text-center text-white uppercase font-bold text-2xl">Search To Reserve Parking  </p>
-                <p class="text-center text-white font-bold text-xl"><a href="https://www.google.com">Welcome Henry(Log Out)</a></p>
-        
-              
-            </header>
+<body class="flex-col bg-white h-full">
+    <header class="flex-col bg-arcops-blue mx-auto w-full py-8">
+        <img src="./images/logo.png" alt="" class="mx-auto w-12">   
+        <p class="text-center text-white uppercase font-bold text-2xl mt-4">Search To Reserve Parking</p>
+        <p class="text-center text-white font-semibold text-xl mt-2 pb-4"><a href="#"">Welcome Henry(Log Out)</a></p>
+    </header>
     <content class="flex-1">
         <div class="flex justify-center">
-            <input id="address-finder" type="text" class="border border-gray-500 rounded shadow-lg w-4/5 pl-10 placeholder-gray-600 -my-6"
-                placeholder="Enter Address or Place" onchange="callAPI()" action="POST">
-                
-               
-
+            <input type="text" class="border border-gray-500 rounded shadow-lg w-4/5 pl-10 placeholder-gray-600 -my-6"
+                placeholder="Enter Address or Place" action="POST">
         </div>
-        <select id="selector" style="display: none;">
-            <option value="Pyr">Pyramidally</option>
-            <option value="Lin">In-Lines</option>
-            <option value="Sym">Symmetrically</option>
-            <option value="Nsym">Non-Symmetrically</option>
-        </select>
-        <div class="mt-24 px-6 py-8 border-light-blue border-4 rounded-lg  ml-4 mr-4">
+        <div class="mt-12 px-6 py-8 border-light-blue border-4 rounded-lg  ml-4 mr-4">
             <h6 class="font-bold text-xl">Search Begins Here</h6>
             <p class="font mt-2">Tell us your destination and when you'd like to arrive and leave</p>
         </div>
-        <div class="pl-6 flex-col border-t border-gray-600 mt-8 z-10">
-            <span class="block uppercase font-extrabold text-font-blue text-2xl mt-6">Reserve Parking</span>
+        <div class="pl-6 flex-col border-t border-gray-600 mt-6 z-10">
+            <span class="block uppercase font-extrabold text-font-blue text-2xl mt-4">Reserve Parking</span>
             <span class="block uppercase font-extrabold text-font-gray text-2xl">Pay With Your Phone</span>
-            <span class="block uppercase font-extrabold text-font-blue text-2xl">Save Up To 50%</span>
             <div class="relative">
                 <img src="./images/red-car.png" alt="car image"
-                    class="w-4/6 absolute inset-y-0 right-0 top-0 -mt-8 z-0">
+                    class="w-4/6 absolute inset-y-0 right-0 top-0 -mt-2 z-0">
             </div>
         </div>
-        <div class="relative mt-24">
+        <div class="relative mt-32">
             <img src="./images/button.png" alt="" class="px-4">
         </div>
     </content>

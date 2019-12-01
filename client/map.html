@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="./main.css">
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.5.0/mapbox-gl.css' rel='stylesheet' />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #marker {
+            background-image: url('https://cdn3.iconfinder.com/data/icons/cars-and-transportation-circle-glyph/100/18-512.png');
+            background-size: cover;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        #wrapper {
+            left: 0px;
+            top: 10px;
+            bottom: 80px;
+            right: 0;
+            position: absolute;
+        }
+
+        .mapboxgl-popup {
+            max-width: 200px;
+        }
+    </style>
+    <title>MyBay</title>
+</head>
+
+
+<body class="flex flex-col bg-white h-full">
+    <header class="bg-custom-blue mx-auto w-full py-16">
+        <p class="text-center text-white uppercase font-bold text-2xl">Parking Map</p>
+    </header>
+    <content class="flex-1">
+        <div id="wrapper">
+            <!--Add map Here-->
+            <script src='https://unpkg.com/three@0.106.2/build/three.min.js'></script>
+            <script src="https://unpkg.com/three@0.106.2/examples/js/loaders/GLTFLoader.js"></script>
+            <div id='map'></div>
+            <script>
+                mapboxgl.accessToken =
+                    "pk.eyJ1IjoiZ2hvc3Rwcm9qZWN0IiwiYSI6ImNqNG9hcnhmaDFxYnYzM283cHVsNGNqYzIifQ.9cD3IiLcFLd33jNWEOyH3Q";
+                var map = (window.map = new mapboxgl.Map({
+                    container: "map",
+                    style: "mapbox://styles/mapbox/light-v10",
+                    zoom: 18,
+                    center: [-0.1833427, 51.555543],
+                    pitch: 60,
+                    antialias: true // create the gl context with MSAA antialiasing, so custom layers are antialiased
+                }));
+
+                var popup = new mapboxgl.Popup({ offset: 25 })
+                    .setText('Checkpoint here');
+
+                // create DOM element for the marker
+                var el = document.createElement('div');
+                el.id = 'marker';
+
+                // create the marker
+                new mapboxgl.Marker(el)
+                    .setLngLat([-0.1833427, 51.555543])
+                    .setPopup(popup) // sets a popup on this marker
+                    .addTo(map);
+
+                map.on("load", function () {
+                    fetch(
+                        "https://fordkerbhack.azure-api.net/features?viewport=51.5535663,-0.1887717,51.5589623,-0.1788357",
+                        {
+                            headers: {
+                                "Ocp-Apim-Subscription-Key": "acdba696f16b4de482c60bf886ecf537"
+                            }
+                        }
+                    )
+                        .then(response => response.json())
+                        .then(curbLR => {
+                            map.addLayer({
+                                id: "bays",
+                                type: "line",
+                                source: {
+                                    type: "geojson",
+                                    data: curbLR
+                                },
+                                layout: {
+                                    "line-join": "round",
+                                    "line-cap": "round"
+                                },
+                                paint: {
+                                    "line-color": "#139DCD",
+                                    "line-width": 3
+                                }
+                            });
+                        });
+                });
+
+
+                // parameters to ensure the model is georeferenced correctly on the map
+                var modelOrigin = [-0.1833427, 51.555543];
+                var modelAltitude = 0;
+                var modelRotate = [Math.PI / 2, 0, 0];
+
+                var modelAsMercatorCoordinate = mapboxgl.MercatorCoordinate.fromLngLat(
+                    modelOrigin,
+                    modelAltitude
+                );
+
+                // transformation parameters to position, rotate and scale the 3D model onto the map
+                var modelTransform = {
+                    translateX: modelAsMercatorCoordinate.x,
+                    translateY: modelAsMercatorCoordinate.y,
+                    translateZ: modelAsMercatorCoordinate.z,
+                    rotateX: modelRotate[0],
+                    rotateY: modelRotate[1],
+                    rotateZ: modelRotate[2],
+                    /* Since our 3D model is in real world meters, a scale transform needs to be
+                     * applied since the CustomLayerInterface expects units in MercatorCoordinates.
+                     */
+                    scale: modelAsMercatorCoordinate.meterInMercatorCoordinateUnits()
+                };
+
+                var THREE = window.THREE;
+
+                // configuration of the custom layer for a 3D model per the CustomLayerInterface
+                var customLayer = {
+                    id: "3d-model",
+                    type: "custom",
+                    renderingMode: "3d",
+                    onAdd: function (map, gl) {
+                        this.camera = new THREE.Camera();
+                        this.scene = new THREE.Scene();
+
+                        // create two three.js lights to illuminate the model
+                        var directionalLight = new THREE.DirectionalLight(0xffffff);
+                        directionalLight.position.set(0, -70, 100).normalize();
+                        this.scene.add(directionalLight);
+
+                        var directionalLight2 = new THREE.DirectionalLight(0xffffff);
+                        directionalLight2.position.set(0, 70, 100).normalize();
+                        this.scene.add(directionalLight2);
+
+                        // use the three.js GLTF loader to add the 3D model to the three.js scene
+                        var loader = new THREE.GLTFLoader();
+                        loader.load(
+                            "https://docs.mapbox.com/mapbox-gl-js/assets/34M_17/34M_17.gltf",
+                            function (gltf) {
+                                this.scene.add(gltf.scene);
+                            }.bind(this)
+                        );
+                        this.map = map;
+
+                        // use the Mapbox GL JS map canvas for three.js
+                        this.renderer = new THREE.WebGLRenderer({
+                            canvas: map.getCanvas(),
+                            context: gl,
+                            antialias: true
+                        });
+
+                        this.renderer.autoClear = false;
+                    },
+                    render: function (gl, matrix) {
+                        var rotationX = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(1, 0, 0),
+                            modelTransform.rotateX
+                        );
+                        var rotationY = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(0, 1, 0),
+                            modelTransform.rotateY
+                        );
+                        var rotationZ = new THREE.Matrix4().makeRotationAxis(
+                            new THREE.Vector3(0, 0, 1),
+                            modelTransform.rotateZ
+                        );
+
+                        var m = new THREE.Matrix4().fromArray(matrix);
+                        var l = new THREE.Matrix4()
+                            .makeTranslation(
+                                modelTransform.translateX,
+                                modelTransform.translateY,
+                                modelTransform.translateZ
+                            )
+                            .scale(
+                                new THREE.Vector3(
+                                    modelTransform.scale,
+                                    -modelTransform.scale,
+                                    modelTransform.scale
+                                )
+                            )
+                            .multiply(rotationX)
+                            .multiply(rotationY)
+                            .multiply(rotationZ);
+
+                        this.camera.projectionMatrix = m.multiply(l);
+                        this.renderer.state.reset();
+                        this.renderer.render(this.scene, this.camera);
+                        this.map.triggerRepaint();
+                    }
+                };
+
+                map.on("style.load", function () {
+                    map.addLayer(customLayer, "waterway-label");
+                });
+
+            </script>
+
+        </div>
+    </content>
+</body>
+
+</html>
