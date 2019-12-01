@@ -6,13 +6,15 @@ const volleyball = require('volleyball');
 
 app.set('port', (process.env.PORT || 5000));
 
-const fetchData = require('./api/routes/fetch')
+const fetchData = require('./api/routes/fetch');
+const dvlaVRM = require('./api/routes/dvla');
 
 app.use(volleyball);
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 app.use('/fetch', fetchData);
+app.use('/dvla', dvlaVRM);
 
 app.use((req, res, next) => {
     const error = new Error('Not found')
