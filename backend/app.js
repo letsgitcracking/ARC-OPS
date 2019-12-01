@@ -1,9 +1,4 @@
-
-function callAPI() {
-
-  var x = document.getElementById("address-finder");
-  console.log(x.value)
-  if (process.env.NODE_ENV !== 'production') { require('dotenv').config() }
+if (process.env.NODE_ENV !== 'production') { require('dotenv').config() }
   const express = require('express');
   const app = express();
   const volleyball = require('volleyball');
@@ -36,4 +31,4 @@ function callAPI() {
     })
     
     app.listen(app.get('port'), console.log(`Server is up and running on port: ${app.get('port')}`));
-}
+
